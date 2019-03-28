@@ -94,7 +94,7 @@ def copy_virtual_env_libs(deployment_dir, lib64=False):
     :param lib64: Boolean value if python lib64 packages are to be copied.
     """
 
-    if sys.real_prefix:
+    if 'real_prefix' in dir(sys):
         # If we're in a virtual environment, this will have a value
         venv_root_dir = sys.real_prefix
     else:
@@ -133,11 +133,12 @@ def zipdir(dir_path=None, zip_file_path=None, include_dir_in_zip=False):
     not, it will be created. If you want to replace it from scratch, delete it
     prior to calling this function. (default is computed as dirPath + ".zip")
     :param bool include_dir_in_zip: indicator whether the top level directory should
-    be included in the archive or omitted. (default True)
+    be included in the archive or omitted. (default False)
     """
 
     if not os.path.isdir(dir_path):
         raise OSError("Directory path argument {} is not a directory".format(dir_path))
+
     if not zip_file_path:
         zip_file_path = dir_path + ".zip"
     parent_dir, dir_to_zip = os.path.split(dir_path)
@@ -180,10 +181,11 @@ def copy_deployment_files(deployment_dir):
 
 def build_lambda_zipfile():
     deployment_dir = make_deployment_dir()
-    print("Building Lambda zip file in {}".format(deployment_dir))
+    print("Building Lambda zip file from {}".format(deployment_dir))
     copy_deployment_files(deployment_dir)
     copy_virtual_env_libs(deployment_dir, lib64=False)
-    new_zipfile = "{}/{}.zip".format(deployment_dir, deployment_dir)
+    new_zipfile = "deployments/{}.zip".format(deployment_dir.split('/')[-1])
+    zipdir(dir_path='deployments', zip_file_path=new_zipfile)
     print("New zip will be {}".format(new_zipfile))
 
 
@@ -201,7 +203,6 @@ args = parser.parse_args()
 if __name__ == "__main__":
     if args.build:
         build_lambda_zipfile()
-        # print("New dir: {}".format(make_deployment_dir()))
 
     # (NEW_DEPLOYMENT_DIR, CURRENT_DEPLOYMENT_NAME) = make_deployment_dir()
     # copy_deployment_files(NEW_DEPLOYMENT_DIR, file_list)

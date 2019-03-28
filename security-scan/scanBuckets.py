@@ -59,7 +59,7 @@ def fix_resource_if_needed(policy):
 
 def fix_policy_if_needed(policy):
     """
-    If the policy, enforcing TLS to S3, applies to only the bucket or only its contents,
+    If the S3 bucket policy, enforcing TLS to S3, applies to only the bucket or only its contents,
     change it to apply to both
     """
     if fix_resource_if_needed(policy):
