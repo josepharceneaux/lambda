@@ -62,11 +62,14 @@ def fix_policy_if_needed(policy):
     If the S3 bucket policy, enforcing TLS to S3, applies to only the bucket or only its contents,
     change it to apply to both
     """
-    if fix_resource_if_needed(policy):
-        policy['Statement'][0]['Resource'] = fix_resource_if_needed(policy)
-        return policy
 
-    return None
+    if 'Statement' in policy:
+        for element in policy['Statement']:
+            element['Resource'] = fix_resource_if_needed(policy)
+
+        return policy
+    else:
+        return None
 
 
 def print_bucket_names(buckets):
