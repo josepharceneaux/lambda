@@ -103,7 +103,6 @@ def copy_virtual_env_libs(deployment_dir, lib64=False):
 
     package_dir = "{}/lib/python3.7/site-packages/".format(venv_root_dir)
     package64_dir = "{}/lib64/python2.7/site-packages/".format(venv_root_dir)
-    print("Copying packages from environment {} to {}".format(package_dir, deployment_dir))
 
     if os.path.exists(package_dir):
         cmd = "cp -r {0}* {1}".format(package_dir, deployment_dir)
@@ -118,6 +117,7 @@ def copy_virtual_env_libs(deployment_dir, lib64=False):
 def zipdir(dir_path=None, zip_file_path=None, include_dir_in_zip=False):
     """
     Create a zip archive from a directory.
+
     Note that this function is designed to put files in the zip archive with
     either no parent directory or just one parent directory, so it will trim any
     leading directories in the filesystem paths and not include them inside the
@@ -125,15 +125,9 @@ def zipdir(dir_path=None, zip_file_path=None, include_dir_in_zip=False):
     directory and make it into a zip file that can be extracted in different
     locations.
 
-    :param str dir_path: path to the directory to archive. This is the only
-    required argument. It can be absolute or relative, but only one or zero
-    leading directories will be included in the zip archive.
-    :param str zip_file_path: path to the output zip file. This can be an absolute
-    or relative path. If the zip file already exists, it will be updated. If
-    not, it will be created. If you want to replace it from scratch, delete it
-    prior to calling this function. (default is computed as dirPath + ".zip")
-    :param bool include_dir_in_zip: indicator whether the top level directory should
-    be included in the archive or omitted. (default False)
+    :param str dir_path: path to the directory to archive. This is the only required argument. It can be absolute or relative, but only one or zero leading directories will be included in the zip archive.
+    :param str zip_file_path: path to the output zip file. This can be an absolute or relative path. If the zip file already exists, it will be updated. If not, it will be created. If you want to replace it from scratch, delete it prior to calling this function. (default is computed as dirPath + ".zip")
+    :param bool include_dir_in_zip: indicator whether the top level directory should be included in the archive or omitted. (default False)
     """
 
     if not os.path.isdir(dir_path):
@@ -141,7 +135,9 @@ def zipdir(dir_path=None, zip_file_path=None, include_dir_in_zip=False):
 
     if not zip_file_path:
         zip_file_path = dir_path + ".zip"
+
     parent_dir, dir_to_zip = os.path.split(dir_path)
+    print("Zip: parent: {} dir: {}".format(parent_dir, dir_to_zip))
 
     # Function to prepare the proper archive path
     def trim_path(path):
@@ -150,19 +146,23 @@ def zipdir(dir_path=None, zip_file_path=None, include_dir_in_zip=False):
             archive_path = archive_path.replace(os.path.sep, "", 1)
         if not include_dir_in_zip:
             archive_path = archive_path.replace(dir_to_zip + os.path.sep, "", 1)
-        return os.path.normcase(archive_path)
+        value = os.path.normcase(archive_path)
+        print("trimp_path: {} -> {}".format(path, value))
+        return value
 
-    out_file = zipfile.ZipFile(zip_file_path, "w", compression=zipfile.ZIP_DEFLATED)
+    # out_file = zipfile.ZipFile(zip_file_path, "w", compression=zipfile.ZIP_DEFLATED)
     for (archive_dir_path, dir_names, file_names) in os.walk(dir_path):
         for file_name in file_names:
             file_path = os.path.join(archive_dir_path, file_name)
-            out_file.write(file_path, trim_path(file_path))
+            # out_file.write(file_path, trim_path(file_path))
 
         # Make sure we get empty directories as well
         if not file_names and not dir_names:
             zip_info = zipfile.ZipInfo(trim_path(archive_dir_path) + "/")
-            out_file.writestr(zip_info, "")
-    out_file.close()
+            # out_file.writestr(zip_info, "")
+
+    # out_file.close()
+
 
 
 FILE_LIST_FILE = "files.txt"
@@ -179,14 +179,67 @@ def copy_deployment_files(deployment_dir):
         print("No files .txt")
 
 
+def zipdir(dir_path, include_dir_in_zip=True, zip_file_path=None):
+    """
+    Zip up a directory and place it in a file which may be specified or is created as a sibling file to the target directory.
+
+    :param dir_path: The directory to be compressed
+    :param include_dir_in_zip: Whether or not to include the top level directory in the zip archive
+    :param zip_file_path: If specified, pathname of zip file to be created.
+    """
+
+    if not os.path.isdir(dir_path):
+        raise OSError("Directory path argument {} is not a directory".format(dir_path))
+
+    if not zip_file_path:
+        zip_file_path = "{}/{}.zip".format(os.path.dirname(dir_path), os.path.basename(dir_path))
+    zip_file = zipfile.ZipFile(zip_file_path, "w", compression=zipfile.ZIP_DEFLATED)
+    print("Zip directory {} to {}".format(dir_path, zip_file_path))
+
+    parent_dir_name = os.path.basename(dir_path)
+    len_parent = len(parent_dir_name)
+    len_include = len(dir_path)
+
+    # Write the correct archive path
+    def clean_path(path):
+        print("Path: {} Include parent: {}".format(path, include_dir_in_zip))
+
+        if include_dir_in_zip:
+            archive_path = path[(len_include-len_parent):]
+            print("Archive path: {}".format(archive_path))
+            return archive_path
+
+        archive_path = path[:len_include]
+        print("Archive path: {}".format(archive_path))
+
+        print()
+        return archive_path
+
+    for (archive_dir_path, dir_names, file_names) in os.walk(dir_path):
+        for file_name in file_names:
+            file_path = os.path.join(archive_dir_path, file_name)
+            zip_file.write(file_path, clean_path(file_path))
+            print("Writing {} to zip".format(file_path))
+
+        # Make sure we get empty directories as well
+        if not file_names and not dir_names:
+            zip_info = zipfile.ZipInfo(archive_dir_path + "/")
+            zip_file.writestr(zip_info, "")
+
+    zip_file.close()
+    return zip_file_path
+
+
 def build_lambda_zipfile():
     deployment_dir = make_deployment_dir()
-    print("Building Lambda zip file from {}".format(deployment_dir))
+    print("Copying deployment files to {}".format(deployment_dir))
     copy_deployment_files(deployment_dir)
+    print("Copying venv files to {}".format(deployment_dir))
     copy_virtual_env_libs(deployment_dir, lib64=False)
     new_zipfile = "deployments/{}.zip".format(deployment_dir.split('/')[-1])
-    zipdir(dir_path='deployments', zip_file_path=new_zipfile)
-    print("New zip will be {}".format(new_zipfile))
+    print("Creating new zip file {}".format(new_zipfile))
+    zipfile_path = zipdir(dir_path=deployment_dir, include_dir_in_zip=True)
+    print("Done")
 
 
 def install_lambda_zipfile():
@@ -212,9 +265,12 @@ if __name__ == "__main__":
     # copy_deployment_into_latest(new_deployment_zipfile_name)
 
     # print('Successfully created new deployment at {0:s} and {1:s}'.format(new_deployment_zipfile_name,
-    else:
+    elif args.deploy:
         # install_lambda_zipfile()
-        print("Latest: {}".format(get_latest_deployment_directory()))
+        latest_deployment_dir = get_latest_deployment_directory()
+        zip_file = "{}/{}.zip".format(latest_deployment_dir, latest_deployment_dir)
+        if os.path.isfile(zip_file):
+            print("Deploying: {}".format(zip_file))
 else:
     print("Error: intended to run locally")
     sys.exit(1)
