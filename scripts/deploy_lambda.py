@@ -14,7 +14,8 @@ import argparse
 
 
 LAMBDA_CLIENT = boto3.client('lambda')
-LATEST_DEPLOYMENT_FILE_PATH = 'deployments/latest_deployment.zip'
+S3_CLIENT = boto3.client('s3')
+LAMBDA_BUCKET = "foo"
 
 
 def get_immediate_subdirectories(parent_directory):
@@ -46,8 +47,11 @@ def get_latest_deployment_directory(deployment_parent_directory='./deployments')
 # If we don't want to garbage collect, set this to None
 MAX_VERSIONS = 10
 
+# Top level of all deployments
+DEPLOYMENTS_PARENT_DIRECTORY_PATH = 'deployments'
 
-def make_deployment_dir(deployment_parent_directory='deployments'):
+
+def make_deployment_dir(deployment_parent_directory=DEPLOYMENTS_PARENT_DIRECTORY_PATH):
     """
     Creates a versioned deployment directory under a root deployment directory.
 
@@ -84,6 +88,18 @@ def make_deployment_dir(deployment_parent_directory='deployments'):
         os.mkdir(new_deployment_dir_path)
 
     return new_deployment_dir_path
+
+
+def get_latest_deployment_zipfile(deployment_parent_directory=DEPLOYMENTS_PARENT_DIRECTORY_PATH):
+    """
+    """
+    zipfile ="{}/{}.zip".format(deployment_parent_directory, get_latest_deployment_directory(deployment_parent_directory))
+    if not os.path.isfile(zipfile):
+        print("No such zipfile: {}".format(zipfile))
+        return None
+
+    return zipfile
+
 
 
 def copy_virtual_env_libs(deployment_dir, lib64=False):
@@ -243,9 +259,12 @@ def build_lambda_zipfile():
 
 
 def install_lambda_zipfile():
-    print("Deploying Lambda")
-    deployment_dir = make_deployment_dir()
-    # copy_virtual_env_libs("foo")
+    zipfile = get_latest_deployment_zipfile()
+    if zipfile:
+        print("Deploying zipfile: {}".format(zipfile))
+        return True
+
+    return False
 
 
 parser = argparse.ArgumentParser(description='Create an AWS Lambda Deployment package or upload a package')
@@ -266,11 +285,11 @@ if __name__ == "__main__":
 
     # print('Successfully created new deployment at {0:s} and {1:s}'.format(new_deployment_zipfile_name,
     elif args.deploy:
-        # install_lambda_zipfile()
-        latest_deployment_dir = get_latest_deployment_directory()
-        zip_file = "{}/{}.zip".format(latest_deployment_dir, latest_deployment_dir)
-        if os.path.isfile(zip_file):
-            print("Deploying: {}".format(zip_file))
+        if install_lambda_zipfile():
+            print("Success")
+        else:
+            print("Fail")
+            
 else:
     print("Error: intended to run locally")
     sys.exit(1)
