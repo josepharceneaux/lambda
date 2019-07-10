@@ -1,2 +1,5 @@
-# Scan an AWS account for security holes. E.g., Unencrypted S3 buckets
+# Scan an AWS account for security holes
+
+## S3 Bucket Scan
+
 
