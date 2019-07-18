@@ -234,9 +234,9 @@ def scan_bucket_security(buckets, action):
             print("Bucket name: {}".format(bucket_name))
 
             # Buckets whose names start with aa belong to security and should not be touched
-            if bucket_name.startswith('aa'):
-                print("    Skipping {} - security bucket".format(bucket_name))
-                continue
+            # if bucket_name.startswith('aa'):
+            #     print("    Skipping {} - security bucket".format(bucket_name))
+            #     continue
 
             # Exmine the bucket policy for TLS
             # bucket_policy_tls(b, bucket_name, 'scan');
