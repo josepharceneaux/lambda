@@ -1,3 +1,6 @@
+__author__ = "Joseph Arceneaux joe.arceneaux@gmail.com"
+
+
 import json
 import boto3
 from botocore.exceptions import ClientError
