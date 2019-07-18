@@ -14,8 +14,11 @@ import argparse
 
 
 LAMBDA_CLIENT = boto3.client('lambda')
-S3_CLIENT = boto3.client('s3')
-LAMBDA_BUCKET = "foo"
+S3_RESOURCE = boto3.resource('s3')
+LAMBDA_BUCKET_NAME = "www.arceneaux.me"
+
+# Merely a convention - we could put this in a file, and there could be multiple functions
+LAMBDA_FUNCTION_NAME = 'lambda_handler'
 
 
 def get_immediate_subdirectories(parent_directory):
@@ -258,13 +261,65 @@ def build_lambda_zipfile():
     print("Done")
 
 
-def install_lambda_zipfile():
-    zipfile = get_latest_deployment_zipfile()
-    if zipfile:
-        print("Deploying zipfile: {}".format(zipfile))
-        return True
+def validate_response(response, operation=None, code=requests.codes.OK):
+    """
+    If the request didn't return CODE, bail
+    :param dict response: Response from AWS client call.
+    :param code HTTP status code expected
+    :param operation Descriptive name of what we were trying to do
+    """
+    if response and u'ResponseMetadata' in response and u'HTTPStatusCode' in response[u'ResponseMetadata']:
+        if response[u'ResponseMetadata'][u'HTTPStatusCode'] != code:
+            print("Operation {} not OK: Status: {} Full Response: {}".format(operation, response[u'ResponseMetadata'][u'HTTPStatusCode'], response))
+            sys.exit(1)
 
-    return False
+    else:
+        print("API call: {} Malformatted AWS response: {}".format(operation, response))
+        sys.exit(1)
+
+
+def update_lambda_function(function_name, s3_key_path, bucket_name):
+    """
+    """
+    response = LAMBDA_CLIENT.update_function_code(FunctionName=function_name, S3Bucket=bucket_name, S3Key=s3_key_path, Publish=True)
+    validate_response(response, 'update_lambda_function_code')
+    # Note that if the new code's SHA is the same as the previous version, publishing will not increment the version
+    code_sha = response['CodeSha256']
+    description = "Updating version of Lambda function {}".format(function_name)
+    response = LAMBDA_CLIENT.publish_version(FunctionName=function_name,
+                                             CodeSha256=code_sha,
+                                             Description=description)
+    validate_response(response, 'publish_lambda_version')
+
+
+def install_lambda_zipfile():
+    """
+    """
+    zipfile = get_latest_deployment_zipfile()
+    if not zipfile:
+        return False
+
+    datetime_str = str(datetime.datetime.utcnow())
+    s3_key_path = "{}/{}".format(LAMBDA_FUNCTION_NAME, datetime_str)
+    bucket = S3_RESOURCE.Bucket(LAMBDA_BUCKET_NAME)
+    if not bucket:
+        return False
+
+    print("Deploying zipfile {} to {}".format(zipfile, bucket))
+    try:
+        print("Uploading file...", end='')
+        bucket.upload_file(zipfile, s3_key_path, Callback=None)
+        print("Done")
+    except Exception as  e:
+        print("Cannot upload zipfile: {}".format(e))
+        return False
+
+    for name in [ LAMBDA_FUNCTION_NAME ]:
+        print("Updating function {}...".format(name), end='')
+        update_lambda_function(name, s3_key_path, LAMBDA_BUCKET_NAME)
+        print("Done")
+
+    return True
 
 
 parser = argparse.ArgumentParser(description='Create an AWS Lambda Deployment package or upload a package')
@@ -275,15 +330,6 @@ args = parser.parse_args()
 if __name__ == "__main__":
     if args.build:
         build_lambda_zipfile()
-
-    # (NEW_DEPLOYMENT_DIR, CURRENT_DEPLOYMENT_NAME) = make_deployment_dir()
-    # copy_deployment_files(NEW_DEPLOYMENT_DIR, file_list)
-    # copy_virtual_env_libs(NEW_DEPLOYMENT_DIR, "./venv")
-    # new_deployment_zipfile_name = "deployments/{}.zip".format(CURRENT_DEPLOYMENT_NAME)
-    # zipdir(NEW_DEPLOYMENT_DIR, new_deployment_zipfile_name)
-    # copy_deployment_into_latest(new_deployment_zipfile_name)
-
-    # print('Successfully created new deployment at {0:s} and {1:s}'.format(new_deployment_zipfile_name,
     elif args.deploy:
         if install_lambda_zipfile():
             print("Success")
