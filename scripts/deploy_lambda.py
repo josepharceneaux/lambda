@@ -15,6 +15,8 @@ import argparse
 
 LAMBDA_CLIENT = boto3.client('lambda')
 S3_RESOURCE = boto3.resource('s3')
+
+# The S3 bucket we'll install the zip file into
 LAMBDA_BUCKET_NAME = "www.arceneaux.me"
 
 # Merely a convention - we could put this in a file, and there could be multiple functions
@@ -322,20 +324,34 @@ def install_lambda_zipfile():
     return True
 
 
+def fatal(message):
+    """
+    Print message and then exit
+    """
+    print(message)
+    sys.exit(1)
+
 parser = argparse.ArgumentParser(description='Create an AWS Lambda Deployment package or upload a package')
 parser.add_argument('--build', action='store_true')
 parser.add_argument('--deploy', action='store_true')
+parser.add_argument('--function', type=str, help='Function Name')
 args = parser.parse_args()
 
 if __name__ == "__main__":
+    if not args.function:
+        fatal("Must specify a function with --function")
+
     if args.build:
-        build_lambda_zipfile()
+        print("Building zipfile for function {}".format(args.function))
+        # build_lambda_zipfile()
     elif args.deploy:
-        if install_lambda_zipfile():
-            print("Success")
-        else:
-            print("Fail")
+        print("Deploying zipfile for function {}".format(args.function))
+        # if install_lambda_zipfile():
+        #     print("Success")
+        # else:
+        #     print("Fail")
+    else:
+        fatal("Must specify either --build or --deploy")
             
 else:
-    print("Error: intended to run locally")
-    sys.exit(1)
+    fatal("Error: intended to run locally")
