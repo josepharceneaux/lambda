@@ -16,3 +16,4 @@ install: env
 
 test: tests
 tests: env
+	pytest
