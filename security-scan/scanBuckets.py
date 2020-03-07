@@ -1,3 +1,5 @@
+#! /usr/bin/env python3
+
 __author__ = "Joseph Arceneaux joe.arceneaux@gmail.com"
 
 
@@ -252,7 +254,7 @@ def scan_bucket_security(buckets, action):
 
 bucket_client = boto3.client('s3')
 
-STATUS_CODE_NOT_FOUND = { "statusCode" : "404", "body" : json.dumps("Fail") }
+STATUS_CODE_NOT_FOUND = { "statusCode" : "404", "body" : json.dumps("Not found") }
 STATUS_CODE_OK = { "statusCode" : "200", "body" : json.dumps("That seemed to succeed") }
 STATUS_CODE_ERROR = { "statusCode" : "500", "body" : json.dumps("Server Error") }
 
