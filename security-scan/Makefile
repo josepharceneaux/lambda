@@ -20,9 +20,28 @@ install: env
 	../scripts/deploy_lambda.py --deploy --function ${FUNCTION}
 
 clean:
+	rm -rf tests/__pycache__
+
+distclean:
+	rm -rf deployments/deployment_* /tmp/
+
+deactivate:
 	$(shell deactivate)
+
+
+# Bucket actions
+list-buckets:
+	./scanBuckets.py list
+scan-buckets:
+	./scanBuckets.py scan
+bucket-logging:
+	./scanBuckets.py logging
+fix-buckets:
+	./scanBuckets.py modify
+bucket-encryption:
+	./scanBuckets.py encryption
 
 
 test: tests
 tests: env
-	pytest
+	pytest tests
