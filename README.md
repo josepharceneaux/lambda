@@ -7,4 +7,4 @@ Things related to deploying AWS Lamda functions.
 
 ## Particular Lambda functions
 
-* [Security Scan](github.com/josepharceneaux/lambda/security-scan) : Lambda functions for scanning/fixing security issues in AWS
+* [Security Scan](https://github.com/josepharceneaux/lambda/tree/master/security-scan) : Lambda functions for scanning/fixing security issues in AWS
