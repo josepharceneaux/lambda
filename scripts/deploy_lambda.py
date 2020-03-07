@@ -215,7 +215,7 @@ def zipdir(dir_path, include_dir_in_zip=True, zip_file_path=None):
     if not zip_file_path:
         zip_file_path = "{}/{}.zip".format(os.path.dirname(dir_path), os.path.basename(dir_path))
     zip_file = zipfile.ZipFile(zip_file_path, "w", compression=zipfile.ZIP_DEFLATED)
-    print("Zip directory {} to {}".format(dir_path, zip_file_path))
+    print("Zipping directory {} to file {}".format(dir_path, zip_file_path))
 
     parent_dir_name = os.path.basename(dir_path)
     len_parent = len(parent_dir_name)
@@ -223,24 +223,24 @@ def zipdir(dir_path, include_dir_in_zip=True, zip_file_path=None):
 
     # Write the correct archive path
     def clean_path(path):
-        print("Path: {} Include parent: {}".format(path, include_dir_in_zip))
+        # print("Path: {} Include parent: {}".format(path, include_dir_in_zip))
 
         if include_dir_in_zip:
             archive_path = path[(len_include-len_parent):]
-            print("Archive path: {}".format(archive_path))
+            # print("Archive path: {}".format(archive_path))
             return archive_path
 
         archive_path = path[:len_include]
-        print("Archive path: {}".format(archive_path))
+        # print("Archive path: {}".format(archive_path))
 
-        print()
+        # print()
         return archive_path
 
     for (archive_dir_path, dir_names, file_names) in os.walk(dir_path):
         for file_name in file_names:
             file_path = os.path.join(archive_dir_path, file_name)
             zip_file.write(file_path, clean_path(file_path))
-            print("Writing {} to zip".format(file_path))
+            # print("Writing {} to zip".format(file_path))
 
         # Make sure we get empty directories as well
         if not file_names and not dir_names:
@@ -343,7 +343,7 @@ if __name__ == "__main__":
 
     if args.build:
         print("Building zipfile for function {}".format(args.function))
-        # build_lambda_zipfile()
+        build_lambda_zipfile()
     elif args.deploy:
         print("Deploying zipfile for function {}".format(args.function))
         # if install_lambda_zipfile():
