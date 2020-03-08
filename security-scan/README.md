@@ -8,15 +8,22 @@ Check that S3 buckets are encrypted, as are their contents, and that connections
 
 * **make list-buckets**: This invokes the command:
 
-	`./scanBuckets.py list`
-This lists all of the buckets we have in our account.
+	`./scanBuckets.py list` which lists all of the buckets we have in our account.
 
-* **make scan-buckets**:
-	./scanBuckets.py scan
-* **bucket-logging**:
-	./scanBuckets.py logging
-* **fix-buckets**:
-	./scanBuckets.py modify
-* **bucket-encryption**:
-	./scanBuckets.py encryption
+* **make scan-buckets**: This invokes the command:
+
+	`./scanBuckets.py scan` which 
+
+* **bucket-logging**: This invokes the command:
+
+	`./scanBuckets.py logging` which 
+
+* **fix-buckets**: This invokes the command:
+
+	`./scanBuckets.py modify` which 
+
+* **bucket-encryption**: This invokes the command:
+
+	`./scanBuckets.py encryption` which 
+
 
