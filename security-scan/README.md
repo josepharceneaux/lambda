@@ -12,18 +12,19 @@ Check that S3 buckets are encrypted, as are their contents, and that connections
 
 * **make scan-buckets**: This invokes the command:
 
-	`./scanBuckets.py scan` which 
+	`./scanBuckets.py scan` which examines all buckets for security issues and generates a report on the command line.
 
 * **bucket-logging**: This invokes the command:
 
-	`./scanBuckets.py logging` which 
+	`./scanBuckets.py logging` which indicates whether a bucket has logging turned on or not.
 
 * **fix-buckets**: This invokes the command:
 
-	`./scanBuckets.py modify` which 
+	`./scanBuckets.py modify` which looks for security issues and, if found, attempts to repair them in place, and then re-install them.
 
 * **bucket-encryption**: This invokes the command:
 
-	`./scanBuckets.py encryption` which 
+	`./scanBuckets.py encryption` which describes a bucket's encryption status.
+
 
 
