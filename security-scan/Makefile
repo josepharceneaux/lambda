@@ -15,6 +15,7 @@ build: env
 	echo "Building ${FUNCTION}"
 	../scripts/deploy_lambda.py --build --function ${FUNCTION}
 
+# Deploy this Lambda function to AWS
 deploy: install
 install: env
 	../scripts/deploy_lambda.py --deploy --function ${FUNCTION}

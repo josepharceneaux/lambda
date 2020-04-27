@@ -307,7 +307,7 @@ def install_lambda_zipfile():
     if not bucket:
         return False
 
-    print("Deploying zipfile {} to {}".format(zipfile, bucket))
+    print("Deploying zipfile {} to bucket {}".format(zipfile, bucket))
     try:
         print("Uploading file...", end='')
         bucket.upload_file(zipfile, s3_key_path, Callback=None)
@@ -346,10 +346,10 @@ if __name__ == "__main__":
         build_lambda_zipfile()
     elif args.deploy:
         print("Deploying zipfile for function {}".format(args.function))
-        # if install_lambda_zipfile():
-        #     print("Success")
-        # else:
-        #     print("Fail")
+        if install_lambda_zipfile():
+            print("Success")
+        else:
+            print("Fail")
     else:
         fatal("Must specify either --build or --deploy")
             
