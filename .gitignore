@@ -1,3 +1,4 @@
 *~
+*.pyc
 security-scan/deployments
 security-scan/tests/__pycache__*
