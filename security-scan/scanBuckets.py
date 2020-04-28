@@ -82,7 +82,7 @@ def print_bucket_names(buckets):
     List all of our S3 buckets
     """
     bucket_list = buckets['Buckets']
-    print("{} buckets:".format(len(bucket_list)))
+    print("S3 buckets ({}  found):".format(len(bucket_list)))
     for b in bucket_list:
         print("    " + b['Name'])
 
