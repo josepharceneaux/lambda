@@ -2,3 +2,5 @@
 *.pyc
 security-scan/deployments
 security-scan/tests/__pycache__*
+security-scan/#*
+scripts/#*
