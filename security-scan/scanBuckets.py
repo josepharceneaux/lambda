@@ -180,7 +180,12 @@ def bucket_encryption(bucket, bucket_name, action):
     try:
         encryption = bucket_client.get_bucket_encryption(Bucket=bucket_name)
     except Exception as e:
-        print("    Can't get encryption: {}".format(e))
+        if e.response['Error']['Code'] == 'ServerSideEncryptionConfigurationNotFoundError':
+            print("    No encryption")
+            return None
+
+        print("    Error: {}".format(e.response['Error']['Code']))
+        return None
     else:
         if encryption and 'ServerSideEncryptionConfiguration' in encryption and 'Rules' in encryption['ServerSideEncryptionConfiguration']:
             rules = encryption['ServerSideEncryptionConfiguration']['Rules']
