@@ -20,7 +20,7 @@ S3_RESOURCE = boto3.resource('s3')
 LAMBDA_BUCKET_NAME = "www.arceneaux.me"
 
 # Merely a convention - we could put this in a file, and there could be multiple functions
-LAMBDA_FUNCTION_NAME = 'lambda_handler'
+LAMBDA_FUNCTION_NAME = 'security_scan.lambda_handler'
 
 
 def get_immediate_subdirectories(parent_directory):
@@ -168,7 +168,7 @@ def zipdir(dir_path=None, zip_file_path=None, include_dir_in_zip=False):
         if not include_dir_in_zip:
             archive_path = archive_path.replace(dir_to_zip + os.path.sep, "", 1)
         value = os.path.normcase(archive_path)
-        print("trimp_path: {} -> {}".format(path, value))
+        print("trim_path: {} -> {}".format(path, value))
         return value
 
     # out_file = zipfile.ZipFile(zip_file_path, "w", compression=zipfile.ZIP_DEFLATED)
@@ -283,6 +283,7 @@ def validate_response(response, operation=None, code=requests.codes.OK):
 def update_lambda_function(function_name, s3_key_path, bucket_name):
     """
     """
+    print("Preparing to update function {}...".format(function_name))
     response = LAMBDA_CLIENT.update_function_code(FunctionName=function_name, S3Bucket=bucket_name, S3Key=s3_key_path, Publish=True)
     validate_response(response, 'update_lambda_function_code')
     # Note that if the new code's SHA is the same as the previous version, publishing will not increment the version
@@ -318,7 +319,7 @@ def install_lambda_zipfile():
 
     for name in [ LAMBDA_FUNCTION_NAME ]:
         print("Updating function {}...".format(name), end='')
-        update_lambda_function(name, s3_key_path, LAMBDA_BUCKET_NAME)
+        update_lambda_function("security_scan", s3_key_path, LAMBDA_BUCKET_NAME)
         print("Done")
 
     return True
