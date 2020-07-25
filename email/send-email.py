@@ -44,6 +44,7 @@ def print_exception(e):
     
 
 # Now send an email
+response = None
 try:
     response = client.send_email(
                 Destination={
@@ -79,6 +80,7 @@ except ClientError as e:
     # pprint.pprint(e, width=1)
 else:
     print("Mail seems to have been sent.")
+    print("RESPONSE: {}".format(response))
 
 
 sys.exit(0)
