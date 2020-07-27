@@ -1,11 +1,13 @@
 #! /usr/bin/env python3
 
+__author__ = "Joseph Arceneaux joe.arceneaux@gmail.com"
 
-import sys
+
+import json
 from botocore.exceptions import ClientError
-import boto3
+# import boto3
+from email import Email
 
-import pprint
 
 
 # This requires verification on AWS
@@ -32,56 +34,12 @@ BODY_HTML = """<html>
 """
 
 
-# Make a client
-client = boto3.client('ses', region_name=AWS_REGION)
+# If we're not in Lambda, presume we're running locally
+if __name__ == "__main__":
+    content = "Go fuck yourselves"
+    email = Email(content, SENDER, RECIPIENT, SUBJECT, "us-east-1")
+    email.send()
+    print("Sending this template:")
+    email.send()
 
-# print("Got the client")
-# print("Type: {}".format(client.send_email))
-
-def print_exception(e):
-    """
-    """
-    
-
-# Now send an email
-response = None
-try:
-    response = client.send_email(
-                Destination={
-            'ToAddresses': [
-                RECIPIENT,
-                ],
-            },
-                Message={
-            'Body': {
-                'Html': {
-                    'Charset': ENCODING,
-                    'Data': BODY_HTML,
-                    },
-                'Text': {
-                    'Charset': ENCODING,
-                    'Data': BODY_HTML,
-                    },
-                },
-            'Subject': {
-                'Charset': ENCODING,
-                'Data': SUBJECT,
-                },
-            },
-                Source=SENDER,
-                )
-except ClientError as e:
-    # print("Exception: {} {}".format(e.response['Error']['Code']))
-    # print("EXCEPTION:".format(e))
-    print("EXCEPTION: {}".format(e))
-    print("EXCEPTION: {}".format(type(e)))
-    # for name,value in e.items():
-    #     # print("{}: {}".format(name, value))
-    # pprint.pprint(e, width=1)
-else:
-    print("Mail seems to have been sent.")
-    print("RESPONSE: {}".format(response))
-
-
-sys.exit(0)
 
