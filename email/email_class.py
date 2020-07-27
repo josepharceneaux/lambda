@@ -13,16 +13,16 @@ class Email(object):
     """
     """
 
-    def __init__(self, message_content, sender_email, recipient_email, subject, aws_region=DEFAULT_AWS_REGION):
+    def __init__(self, message_content, sender_email, recipient_list, subject, aws_region=DEFAULT_AWS_REGION):
         """
         """
 
         self.message_content = message_content
         self.subject = subject
-        self.recipient_email = recipient_email
+        self.recipient_list = recipient_list
         self.sender_email = sender_email
         self.aws_region = aws_region
-        self.client = boto3.client('ses', region_name=aws_region)
+        self.ses_client = boto3.client('ses', region_name=aws_region)
 
     def send(self):
         """
@@ -30,12 +30,33 @@ class Email(object):
         print("Content; {}\n".format(self.message_content))
         print("Subject; {}\n".format(self.subject))
 
-        # self.client.send()
-
-        # send
-        # print("Sender; {}".format(self.sender_email))
-        # print("Recipient; {}".format(self.recipient_email))
-        # print("Sender; {}".format(self.sender_email))
-        # print("Body; {}".format(self.ses_body))
-        # print("SES BODY: {}\n".format(self.ses_body))
+        response = None
+        # response = self.ses_client.send_email(
+        # try:
+        #     content = "Go fuck yourselves"
+        #     response = client.send_email(
+        #         Destination={
+        #             'ToAddresses': [
+        #                 RECIPIENT,
+        #                 ],
+        #             },
+        #         Message={
+        #             'Body': {
+        #                 'Html': {
+        #                     'Charset': ENCODING,
+        #                     'Data': BODY_HTML,
+        #                     },
+        #                 'Text': {
+        #                     'Charset': ENCODING,
+        #                     'Data': BODY_HTML,
+        #                     },
+        #                 },
+        #             'Subject': {
+        #                 'Charset': ENCODING,
+        #                 'Data': SUBJECT,
+        #                 },
+        #             },
+        #         Source=SENDER,
+        #         )
+        # )
         
