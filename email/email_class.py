@@ -31,32 +31,42 @@ class Email(object):
         print("Subject; {}\n".format(self.subject))
 
         response = None
-        # response = self.ses_client.send_email(
-        # try:
-        #     content = "Go fuck yourselves"
-        #     response = client.send_email(
-        #         Destination={
-        #             'ToAddresses': [
-        #                 RECIPIENT,
-        #                 ],
-        #             },
-        #         Message={
-        #             'Body': {
-        #                 'Html': {
-        #                     'Charset': ENCODING,
-        #                     'Data': BODY_HTML,
-        #                     },
-        #                 'Text': {
-        #                     'Charset': ENCODING,
-        #                     'Data': BODY_HTML,
-        #                     },
-        #                 },
-        #             'Subject': {
-        #                 'Charset': ENCODING,
-        #                 'Data': SUBJECT,
-        #                 },
-        #             },
-        #         Source=SENDER,
-        #         )
-        # )
-        
+        try:
+            print("In Try")
+            response = ses_client.send_email(
+                Source=self.sender_email,
+                Destination = {
+                    'ToAddresses': [
+                        self.recipient_list,
+                        ],
+                    'CcAddresses': [],
+                    'BccAddresses': []
+                    },
+                Message={
+                    'Subject': {
+                        'Charset': DEFAULT_ENCODING,
+                        'Data': self.subject,
+                        },
+                    'Body': {
+                        'Html': {
+                            'Charset': DEFAULT_ENCODING,
+                            'Data': BODY_HTML,
+                            },
+                        'Text': {
+                            'Charset': DEFAULT_ENCODING,
+                            'Data': BODY_HTML,
+                            },
+                        },
+                    },
+                ReplyToAddresses = [],
+                ReturnPath = '',
+                SourceArn = '',
+                ReturnPathARN = '',
+                Tags = [],
+                ConfigurationSetName = ''
+                )                
+
+        except ClientError as e:
+            print("EXCEPTION: {}".format(e))
+        else:
+            print("Email appears to have been sent: {}".format(response['MessageId']))

@@ -3,11 +3,8 @@
 __author__ = "Joseph Arceneaux joe.arceneaux@gmail.com"
 
 
-import json
 from botocore.exceptions import ClientError
-# import boto3
-from email import Email
-
+from email_class import Email
 
 
 # This requires verification on AWS
@@ -36,10 +33,12 @@ BODY_HTML = """<html>
 
 # If we're not in Lambda, presume we're running locally
 if __name__ == "__main__":
-    content = "Go fuck yourselves"
-    email = Email(content, SENDER, RECIPIENT, SUBJECT, "us-east-1")
-    email.send()
-    print("Sending this template:")
-    email.send()
+    email = Email("I am the message", SENDER, RECIPIENT, SUBJECT, AWS_REGION)
+
+    try:
+        # email.send()
+        print("Fake mail seems to have been sent.")
+    except ClientError as e:
+        print("EXCEPTION: {}".format(e))
 
 
