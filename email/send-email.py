@@ -36,7 +36,7 @@ if __name__ == "__main__":
     email = Email("I am the message", SENDER, RECIPIENT, SUBJECT, AWS_REGION)
 
     try:
-        # email.send()
+        email.send()
         print("Fake mail seems to have been sent.")
     except ClientError as e:
         print("EXCEPTION: {}".format(e))
