@@ -33,7 +33,7 @@ BODY_HTML = """<html>
 
 # If we're not in Lambda, presume we're running locally
 if __name__ == "__main__":
-    email = Email("I am the message", SENDER, RECIPIENT, SUBJECT, AWS_REGION)
+    email = Email("I am another message", SENDER, [ RECIPIENT ], SUBJECT, AWS_REGION)
 
     try:
         email.send()
